@@ -1,30 +1,105 @@
 definitions:
-  ResponseError:
-    properties:
-      error:
-        type: string
-    type: object
-  eMobile_internal_domain_models_song.Create:
+  Create:
     properties:
       group:
+        description: Группа, к которой принадлежит песня
         type: string
       name:
+        description: Название песни
         type: string
     required:
     - group
     - name
     type: object
-  eMobile_internal_domain_models_song.Song:
+  Entity:
     properties:
       group:
+        description: Группа, к которой принадлежит песня
         type: string
+      id:
+        type: integer
       link:
+        description: Ссылка на песню
         type: string
       name:
+        description: Название песни
         type: string
       releaseDate:
+        description: Дата релиза в формате yyyy.dd.mm
+        example: 2023.15.01
         type: string
       text:
+        description: Текст песни *ПРИПЕВЫ выделять -Начало припева- .... -Конец припева-
+        example: ""
+        type: string
+    required:
+    - group
+    - name
+    type: object
+  Error:
+    properties:
+      error:
+        type: string
+    type: object
+  Pagination:
+    properties:
+      page:
+        description: Номер страницы
+        type: integer
+      page_size:
+        description: Количество элементов на странице
+        type: integer
+    required:
+    - page
+    - page_size
+    type: object
+  Search:
+    properties:
+      group:
+        description: Группа для поиска
+        type: string
+      link:
+        description: Ссылка на песню
+        type: string
+      name:
+        description: Название песни для поиска
+        type: string
+      page:
+        description: Номер страницы
+        type: integer
+      page_size:
+        description: Количество элементов на странице
+        type: integer
+      releaseDate:
+        description: Дата релиза в формате yyyy.dd.mm
+        example: 2023.15.01
+        type: string
+      text:
+        description: Текст песни *ПРИПЕВЫ выделять -Начало припева- .... -Конец припева-
+        example: ""
+        type: string
+    required:
+    - page
+    - page_size
+    type: object
+  Song:
+    properties:
+      group:
+        description: Группа, к которой принадлежит песня
+        type: string
+      link:
+        description: Ссылка на песню
+        type: string
+      name:
+        description: Название песни
+        type: string
+      releaseDate:
+        description: Дата релиза в формате yyyy.dd.mm
+        example: 2023.15.01
+        type: string
+      text:
+        description: Текст песни *ПРИПЕВЫ выделять -Начало припева- .... -Конец припева-
+        example: ""
         type: string
     required:
     - group
@@ -50,22 +125,22 @@ paths:
         name: song
         required: true
         schema:
-          $ref: '#/definitions/eMobile_internal_domain_models_song.Create'
+          $ref: '#/definitions/Create'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/eMobile_internal_domain_models_song.Song'
+            $ref: '#/definitions/Song'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/ResponseError'
+            $ref: '#/definitions/Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/ResponseError'
+            $ref: '#/definitions/Error'
       summary: Create a new song
       tags:
       - songs
@@ -88,11 +163,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/ResponseError'
+            $ref: '#/definitions/Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/ResponseError'
+            $ref: '#/definitions/Error'
       summary: Delete a song by ID
       tags:
       - songs
@@ -111,23 +186,119 @@ paths:
         name: song
         required: true
         schema:
-          $ref: '#/definitions/eMobile_internal_domain_models_song.Song'
+          $ref: '#/definitions/Song'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/eMobile_internal_domain_models_song.Song'
+            $ref: '#/definitions/Song'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/ResponseError'
+            $ref: '#/definitions/Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/ResponseError'
+            $ref: '#/definitions/Error'
       summary: Update a song by ID
+      tags:
+      - songs
+  /songs/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a song by its ID
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Entity'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get a song by ID
+      tags:
+      - songs
+  /songs/{id}/text:
+    post:
+      consumes:
+      - application/json
+      description: Get the text of a song by its ID with pagination
+      parameters:
+      - description: Song ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Pagination parameters
+        in: body
+        name: pagination
+        required: true
+        schema:
+          $ref: '#/definitions/Pagination'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Get text of a song by ID
+      tags:
+      - songs
+  /songs/search:
+    post:
+      consumes:
+      - application/json
+      description: Search for songs based on search criteria
+      parameters:
+      - description: Search parameters
+        in: body
+        name: search
+        required: true
+        schema:
+          $ref: '#/definitions/Search'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Entity'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+      summary: Search for songs
       tags:
       - songs
 swagger: "2.0"

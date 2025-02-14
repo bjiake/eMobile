@@ -43,7 +43,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/eMobile_internal_domain_models_song.Create"
+                            "$ref": "#/definitions/Create"
                         }
                     }
                 ],
@@ -51,19 +51,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/eMobile_internal_domain_models_song.Song"
+                            "$ref": "#/definitions/Song"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/ResponseError"
+                            "$ref": "#/definitions/Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/ResponseError"
+                            "$ref": "#/definitions/Error"
                         }
                     }
                 }
@@ -96,7 +96,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/eMobile_internal_domain_models_song.Song"
+                            "$ref": "#/definitions/Song"
                         }
                     }
                 ],
@@ -104,19 +104,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/eMobile_internal_domain_models_song.Song"
+                            "$ref": "#/definitions/Song"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/ResponseError"
+                            "$ref": "#/definitions/Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/ResponseError"
+                            "$ref": "#/definitions/Error"
                         }
                     }
                 }
@@ -149,13 +149,159 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/ResponseError"
+                            "$ref": "#/definitions/Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/ResponseError"
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/songs/search": {
+            "post": {
+                "description": "Search for songs based on search criteria",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "songs"
+                ],
+                "summary": "Search for songs",
+                "parameters": [
+                    {
+                        "description": "Search parameters",
+                        "name": "search",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Search"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Entity"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/songs/{id}": {
+            "get": {
+                "description": "Get a song by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "songs"
+                ],
+                "summary": "Get a song by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Song ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Entity"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/songs/{id}/text": {
+            "post": {
+                "description": "Get the text of a song by its ID with pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "songs"
+                ],
+                "summary": "Get text of a song by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Song ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Pagination parameters",
+                        "name": "pagination",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Pagination"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
                         }
                     }
                 }
@@ -163,7 +309,58 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "ResponseError": {
+        "Create": {
+            "type": "object",
+            "required": [
+                "group",
+                "name"
+            ],
+            "properties": {
+                "group": {
+                    "description": "Группа, к которой принадлежит песня",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Название песни",
+                    "type": "string"
+                }
+            }
+        },
+        "Entity": {
+            "type": "object",
+            "required": [
+                "group",
+                "name"
+            ],
+            "properties": {
+                "group": {
+                    "description": "Группа, к которой принадлежит песня",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "link": {
+                    "description": "Ссылка на песню",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Название песни",
+                    "type": "string"
+                },
+                "releaseDate": {
+                    "description": "Дата релиза в формате yyyy.dd.mm",
+                    "type": "string",
+                    "example": "2023.15.01"
+                },
+                "text": {
+                    "description": "Текст песни *ПРИПЕВЫ выделять -Начало припева- .... -Конец припева-",
+                    "type": "string",
+                    "example": ""
+                }
+            }
+        },
+        "Error": {
             "type": "object",
             "properties": {
                 "error": {
@@ -171,22 +368,63 @@ const docTemplate = `{
                 }
             }
         },
-        "eMobile_internal_domain_models_song.Create": {
+        "Pagination": {
             "type": "object",
             "required": [
-                "group",
-                "name"
+                "page",
+                "page_size"
             ],
             "properties": {
-                "group": {
-                    "type": "string"
+                "page": {
+                    "description": "Номер страницы",
+                    "type": "integer"
                 },
-                "name": {
-                    "type": "string"
+                "page_size": {
+                    "description": "Количество элементов на странице",
+                    "type": "integer"
                 }
             }
         },
-        "eMobile_internal_domain_models_song.Song": {
+        "Search": {
+            "type": "object",
+            "required": [
+                "page",
+                "page_size"
+            ],
+            "properties": {
+                "group": {
+                    "description": "Группа для поиска",
+                    "type": "string"
+                },
+                "link": {
+                    "description": "Ссылка на песню",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Название песни для поиска",
+                    "type": "string"
+                },
+                "page": {
+                    "description": "Номер страницы",
+                    "type": "integer"
+                },
+                "page_size": {
+                    "description": "Количество элементов на странице",
+                    "type": "integer"
+                },
+                "releaseDate": {
+                    "description": "Дата релиза в формате yyyy.dd.mm",
+                    "type": "string",
+                    "example": "2023.15.01"
+                },
+                "text": {
+                    "description": "Текст песни *ПРИПЕВЫ выделять -Начало припева- .... -Конец припева-",
+                    "type": "string",
+                    "example": ""
+                }
+            }
+        },
+        "Song": {
             "type": "object",
             "required": [
                 "group",
@@ -194,19 +432,26 @@ const docTemplate = `{
             ],
             "properties": {
                 "group": {
+                    "description": "Группа, к которой принадлежит песня",
                     "type": "string"
                 },
                 "link": {
+                    "description": "Ссылка на песню",
                     "type": "string"
                 },
                 "name": {
+                    "description": "Название песни",
                     "type": "string"
                 },
                 "releaseDate": {
-                    "type": "string"
+                    "description": "Дата релиза в формате yyyy.dd.mm",
+                    "type": "string",
+                    "example": "2023.15.01"
                 },
                 "text": {
-                    "type": "string"
+                    "description": "Текст песни *ПРИПЕВЫ выделять -Начало припева- .... -Конец припева-",
+                    "type": "string",
+                    "example": ""
                 }
             }
         }

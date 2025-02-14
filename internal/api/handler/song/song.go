@@ -153,6 +153,17 @@ func (this *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, update)
 }
 
+// Get
+// @Summary Get a song by ID
+// @Description Get a song by its ID
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param id path int true "Song ID"
+// @Success 200 {object} model.Entity
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /songs/{id} [get]
 func (this *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.song.Get"
 
@@ -179,6 +190,18 @@ func (this *Handler) Get(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, result)
 }
 
+// Text
+// @Summary Get text of a song by ID
+// @Description Get the text of a song by its ID with pagination
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param id path int true "Song ID"
+// @Param pagination body model.Pagination true "Pagination parameters"
+// @Success 200 {string} string
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /songs/{id}/text [post]
 func (this *Handler) Text(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.song.Text"
 
@@ -213,6 +236,17 @@ func (this *Handler) Text(w http.ResponseWriter, r *http.Request) {
 	responseApi.WriteJson(w, r, http.StatusOK, result)
 }
 
+// Search
+// @Summary Search for songs
+// @Description Search for songs based on search criteria
+// @Tags songs
+// @Accept json
+// @Produce json
+// @Param search body model.Search true "Search parameters"
+// @Success 200 {array} model.Entity
+// @Failure 400 {object} response.Error
+// @Failure 500 {object} response.Error
+// @Router /songs/search [post]
 func (this *Handler) Search(w http.ResponseWriter, r *http.Request) {
 	const op = "handler.song.Search"
 

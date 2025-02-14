@@ -12,10 +12,10 @@ services:
     restart: always
     image: postgres:17
     env_file: .env.local
-    ports:
-      - "5432:5432"
-#    expose:
-#      - "5432"
+#    ports:
+#      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - local_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -26,22 +26,22 @@ services:
       timeout: 10s
     networks:
       - iod-net
-#  server:
-#    container_name: server
-#    restart: always
-#    env_file: .env.local
-#    build:
-#      context: .
-#      dockerfile: ./docker/local/local.Dockerfile
-#    ports:
-#      - "8080:8080"
-#    volumes:
-#      - local_static_data:/static
-#    depends_on:
-#      db:
-#        condition: service_healthy
-#    networks:
-#      - iod-net
+  server:
+    container_name: server
+    restart: always
+    env_file: .env.local
+    build:
+      context: .
+      dockerfile: ./docker/local/local.Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - local_static_data:/static
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - iod-net
   migrate:
     image: migrate/migrate
     env_file: .env.local
