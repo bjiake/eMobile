@@ -1,0 +1,1 @@
+DELETE FROM song where id in (1,20);

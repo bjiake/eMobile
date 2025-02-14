@@ -1,0 +1,92 @@
+volumes:
+  local_postgres_data:
+  local_static_data:
+
+networks:
+  iod-net:
+    driver: bridge
+
+services:
+  db:
+    container_name: db
+    restart: always
+    image: postgres:17
+    env_file: .env.local
+    ports:
+      - "5432:5432"
+#    expose:
+#      - "5432"
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    networks:
+      - iod-net
+#  server:
+#    container_name: server
+#    restart: always
+#    env_file: .env.local
+#    build:
+#      context: .
+#      dockerfile: ./docker/local/local.Dockerfile
+#    ports:
+#      - "8080:8080"
+#    volumes:
+#      - local_static_data:/static
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    networks:
+#      - iod-net
+  migrate:
+    image: migrate/migrate
+    env_file: .env.local
+    volumes:
+      - ./cmd/migrator/migrations:/migrations
+    command: [ "-path", "/migrations", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "up" ]
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: [migrate-up]
+    networks:
+      - iod-net
+  migrate-down:
+    image: migrate/migrate
+    env_file: .env.local
+    volumes:
+      - ./cmd/migrator/migrations:/migrations
+    command: [ "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable", "-path", "migrations", "down", "-all" ]
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: [migrate-down]
+    networks:
+      - iod-net
+  migrate-mock:
+    image: migrate/migrate
+    env_file: .env.local
+    volumes:
+      - ./cmd/migrator/mock:/migrations_mock
+    command: [ "-path", "/migrations_mock", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "up" ]
+    profiles: [ migrate-up ]
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - iod-net
+  migrate-down-mock:
+    image: migrate/migrate
+    env_file: .env.local
+    volumes:
+      - ./cmd/migrator/mock:/migrations_mock
+    command: [ "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable&x-migrations-table=mock_migrations", "-path", "migrations_mock", "down", "-all" ]
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: [ migrate-down ]
+    networks:
+      - iod-net
